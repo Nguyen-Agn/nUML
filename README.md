@@ -1,6 +1,7 @@
 # nUML: The Java Class Diagram Generator
 
 **nUML** is a command-line tool written in Go that parses `draw.io` XML files and generates corresponding Java class files. It acts as a bridge between visual design and implementation by converting your class diagrams into boilerplate Java code.
+
 **nUML** là công cụ dòng lệnh được viết bằng Go, phân tích cú pháp tệp XML `draw.io` và tạo các tệp Java tương ứng. Nó hoạt động như một cầu nối giữa thiết kế trực quan và triển khai bằng cách chuyển đổi sơ đồ lớp của bạn thành mã Java.
 
 ## Author
@@ -22,7 +23,20 @@
 ## Prerequisites
 - **Go**: Version 1.25.3 or higher.
 
-## Installation & Usage
+## Quick Use
+1. **Download nUML.exe** from the [Releases](https://github.com/Nguyen-Agn/nUML/releases) page.
+2. **Run** the following command:
+
+```bash
+./nUML [options] <file.drawio>
+```
+
+## Example
+```bash
+./nUML -f folderName -o my_diagram.drawio
+```
+
+## Installation & Usage Full
 
 1.  **Clone the repository** (or download the source code).
 2.  **Navigate directly** to the project folder.
@@ -76,15 +90,6 @@ go run . -f models -o my_diagram.drawio
 go build -o nUML.exe main.go
 ```
 
-# Use Directly with file .exe
-```bash
-./nUML [options] <file.drawio>
-```
-
-## Example
-```bash
-./nUML -f folderName -o my_diagram.drawio
-```
 
 ## Note
 - The folderName will be the package name and the folder name.
