@@ -19,10 +19,6 @@
 - **Tạo báo cáo**: Tạo báo cáo tóm tắt các class đã tạo.
 - **Tùy chỉnh**: Tùy chỉnh ghi đè file, tắt báo cáo và kiểm soát verbosity.
 
- 
-## Prerequisites
-- **Go**: Version 1.25.3 or higher.
-
 ## Quick Use
 1. **Download nUML.exe** from the [Releases](https://github.com/Nguyen-Agn/nUML/releases) page.
 2. **Run** the following command:
@@ -31,12 +27,15 @@
 ./nUML [options] <file.drawio>
 ```
 
-## Example
+### Example
 ```bash
 ./nUML -f folderName -o my_diagram.drawio
 ```
 
 ## Installation & Usage Full
+ 
+### Prerequisites
+- **Go**: Version 1.25.3 or higher.
 
 1.  **Clone the repository** (or download the source code).
 2.  **Navigate directly** to the project folder.
@@ -53,6 +52,21 @@ A convenience script `nUML.bat` is provided:
 
 ```cmd
 nUML.bat [options] <file.drawio>
+```
+### Examples
+**Basic usage:**
+```bash
+go run . my_diagram.drawio
+```
+
+**Generate into a package "com.example.models" (folder "models") and overwrite existing files:**
+```bash
+go run . -f models -o my_diagram.drawio
+```
+
+# Build
+```bash
+go build -o nUML.exe main.go
 ```
 
 ## Command Line Options
@@ -73,30 +87,6 @@ nUML.bat [options] <file.drawio>
 | `-l` | Bỏ qua việc tạo `Report.md`. |
 | `-h` | Hiển thị thông báo trợ giúp. |
 
-## Examples
-
-**Basic usage:**
-```bash
-go run . my_diagram.drawio
-```
-
-**Generate into a package "com.example.models" (folder "models") and overwrite existing files:**
-```bash
-go run . -f models -o my_diagram.drawio
-```
-
-# Build
-```bash
-go build -o nUML.exe main.go
-```
-
-
-## Note
-- The folderName will be the package name and the folder name.
-- The file name will be the class name.
-- The file will be created in the same directory as the .exe file.
-
-- folderName sẽ là tên package và tên folder.
-- file name sẽ là tên class.
-- file sẽ được tạo trong cùng thư mục với file .exe.
 # nUML
+![](record.gif)
+
