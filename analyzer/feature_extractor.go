@@ -3,7 +3,6 @@ package analyzer
 import (
 	"nUML/models"
 	"nUML/utils"
-	"regexp"
 	"strings"
 )
 
@@ -39,6 +38,7 @@ func (fe *FeatureExtractor) Extract(cells []models.MxCell, classes map[string]*m
 				if strings.Contains(val, "(") && strings.Contains(val, ")") {
 					// Method
 					m := fe.parseMethod(rawVal) // Pass RAW for italics check
+					// nếu lớp cha là interface, thì tất cả phương thức đều là abstract và public
 					if parentClass.Type == models.Interface {
 						m.IsAbstract = true
 						m.Visibility = "public" // Force public for interface
@@ -66,12 +66,10 @@ func (fe *FeatureExtractor) parseField(val string) models.Field {
 	// Các từ khóa sửa đổi
 	if strings.HasPrefix(val, "+") {
 		f.Visibility = "public"
-	} else if strings.HasPrefix(val, "-") {
-		f.Visibility = "private"
 	} else if strings.HasPrefix(val, "#") {
 		f.Visibility = "protected"
 	} else {
-		f.Visibility = "private"
+		f.Visibility = "private" // defualt & "-"
 	} // Default
 
 	// Advanced Modifiers
@@ -79,10 +77,7 @@ func (fe *FeatureExtractor) parseField(val string) models.Field {
 	if strings.Contains(val, "static") {
 		f.IsStatic = true
 	}
-	if strings.ToUpper(val) == val && len(val) > 0 { // Simple heuristic
-		f.IsFinal = true
-	}
-	if strings.Contains(val, "final") {
+	if (strings.ToUpper(val) == val && len(val) > 0) || strings.Contains(val, "final") { // Simple heuristic
 		f.IsFinal = true
 	}
 
@@ -96,18 +91,21 @@ func (fe *FeatureExtractor) parseField(val string) models.Field {
 
 	// name: Type = Value
 	// First, check for initialization
-	// Đầu tiên, kiểm tra khởi tạo
+	// Đầu tiên, kiểm tra khởi tạo ví dụ "PI: double = 3.14"
 	initParts := strings.SplitN(cleanVal, "=", 2)
 	if len(initParts) == 2 {
 		f.InitialValue = strings.TrimSpace(initParts[1])
 		cleanVal = strings.TrimSpace(initParts[0])
 	}
 
+	// Then check for type declaration
+	// Sau đó kiểm tra khai báo kiểu ví dụ "age: int"
 	parts := strings.Split(cleanVal, ":")
 	if len(parts) >= 2 {
 		f.Name = strings.TrimSpace(parts[0])
 		f.Type = strings.TrimSpace(parts[1])
 	} else {
+		// không có dấu ":", cố gắng tách bằng khoảng trắng để lấy tên và kiểu nếu có
 		partsSpace := strings.Fields(cleanVal)
 		if len(partsSpace) >= 2 {
 			f.Type = partsSpace[0]
@@ -120,9 +118,7 @@ func (fe *FeatureExtractor) parseField(val string) models.Field {
 
 	// Sanitize Name
 	// Làm sạch Tên
-	f.Name = strings.ReplaceAll(f.Name, " ", "")
-	reValid := regexp.MustCompile(`[^a-zA-Z0-9_$]`)
-	f.Name = reValid.ReplaceAllString(f.Name, "")
+	f.Name = utils.SanitizeName(f.Name)
 
 	return f
 }
@@ -155,9 +151,7 @@ func (fe *FeatureExtractor) parseMethod(rawVal string) models.Method {
 		m.Visibility = "public"
 	}
 
-	if strings.Contains(rawVal, "static") { // Check in raw too just in case literal word
-		m.IsStatic = true
-	} else if strings.Contains(val, "static") {
+	if strings.Contains(rawVal, "static") || strings.Contains(val, "static") { // Check in raw too just in case literal word
 		m.IsStatic = true
 	}
 
@@ -181,9 +175,13 @@ func (fe *FeatureExtractor) parseMethod(rawVal string) models.Method {
 	lastParen := strings.LastIndex(cleanVal, ")")
 
 	if lastParen != -1 {
+		// lấy phần sau dấu ngoặc để kiểm tra kiểu trả về
 		afterParen := cleanVal[lastParen+1:]
+
 		if strings.Contains(afterParen, ":") {
+			// dùng split để lấy phần sau dấu ":" làm kiểu trả về với 2 phần tách nhau
 			parts := strings.SplitN(afterParen, ":", 2)
+			// nếu có phần sau dấu ":" thì phần đó là kiểu trả về
 			if len(parts) > 1 {
 				m.ReturnType = strings.TrimSpace(parts[1])
 			}
@@ -193,7 +191,9 @@ func (fe *FeatureExtractor) parseMethod(rawVal string) models.Method {
 			m.ReturnType = "void"
 		}
 
+		// lấy phần trước dấu ngoặc để phân tích tên và tham số
 		lhs := cleanVal[:lastParen+1]
+		// phân tích tên và tham số từ phần trước dấu ngoặc
 		parenStart := strings.Index(lhs, "(")
 
 		if parenStart != -1 {
@@ -203,13 +203,12 @@ func (fe *FeatureExtractor) parseMethod(rawVal string) models.Method {
 			m.Name = lhs
 		}
 	} else {
+		// Nếu không có dấu ngoặc, thì toàn bộ là tên phương thức, và kiểu trả về mặc định là void
 		m.Name = cleanVal
 		m.ReturnType = "void"
 	}
 
-	m.Name = strings.ReplaceAll(m.Name, " ", "")
-	reValid := regexp.MustCompile(`[^a-zA-Z0-9_$]`)
-	m.Name = reValid.ReplaceAllString(m.Name, "")
+	m.Name = utils.SanitizeName(m.Name)
 
 	return m
 }

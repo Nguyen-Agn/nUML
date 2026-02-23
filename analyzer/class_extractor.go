@@ -24,6 +24,8 @@ func (ce *ClassExtractor) Extract(cells []models.MxCell) map[string]*models.Clas
 	classes := make(map[string]*models.ClassModel)
 
 	for _, cell := range cells {
+		// Mô tả: swimlane thường được sử dụng để đại diện cho các lớp trong sơ đồ UML.
+		// Chúng có thể chứa các phần tử khác như trường và phương thức.
 		if strings.Contains(cell.Style, "swimlane") {
 			rawName := utils.CleanHTML(cell.Value)
 			name, classType := ce.parseClassNameAndType(cell.Value) // Pass RAW for abstract detection
@@ -57,11 +59,12 @@ func (ce *ClassExtractor) parseClassNameAndType(raw string) (string, models.Clas
 	// Phân tích cú pháp khuôn mẫu (Stereotype) mạnh mẽ
 	// 1. Look for stereotypes like <<Enum>>, «Interface»
 	// 1. Tìm các khuôn mẫu như <<Enum>>, «Interface»
-	reStereo := regexp.MustCompile(`(<<|«)\s*(\w+)\s*(>>|»)`)
+	reStereo := regexp.MustCompile(`(<<|«)\s*(\w+)\s*(>>|»)`) // (<<|«) bắt đầu, \s* khoảng trắng tùy chọn, (\w+) từ khóa, \s* khoảng trắng tùy chọn, (>>|») kết thúc
 	match := reStereo.FindStringSubmatch(clean)
 
+	// nếu có (len: << Enum >> sẽ là 3 phần: toàn bộ, <<, Enum, >>)
 	if len(match) > 2 {
-		tag := strings.ToLower(match[2])
+		tag := strings.ToLower(match[2]) // lấy từ khóa và chuyển thành chữ thường để so sánh
 		if tag == "interface" || utils.IsFuzzyMatch(tag, "interface") {
 			cType = models.Interface
 		} else if tag == "enum" || utils.IsFuzzyMatch(tag, "enum") {
@@ -77,7 +80,7 @@ func (ce *ClassExtractor) parseClassNameAndType(raw string) (string, models.Clas
 		// Dự phòng: Phát hiện từ khóa mờ
 		lowerClean := strings.ToLower(clean)
 		reWords := regexp.MustCompile(`\W+`)
-		words := reWords.Split(lowerClean, -1)
+		words := reWords.Split(lowerClean, -1) // Tách thành các từ dựa trên ký tự không phải chữ hoặc số
 
 		for _, w := range words {
 			if w == "interface" || utils.IsFuzzyMatch(w, "interface") {
@@ -99,13 +102,12 @@ func (ce *ClassExtractor) parseClassNameAndType(raw string) (string, models.Clas
 	// Trích xuất Tên: Làm sạch tích cực
 	// Remove keywords if they are floating around
 	// Loại bỏ từ khóa nếu chúng trôi nổi xung quanh
-	reKeywords := regexp.MustCompile(`(?i)\b(interface|enum|record|abstract|class)\b`)
+	reKeywords := regexp.MustCompile(`(?i)\b(interface|enum|record|abstract|class)\b`) // (?i) không phân biệt hoa thường, \b để đảm bảo khớp từ nguyên vẹn
 	clean = reKeywords.ReplaceAllString(clean, "")
 
 	// Strip invalid chars
 	// Loại bỏ các ký tự không hợp lệ
-	reValid := regexp.MustCompile(`[^a-zA-Z0-9_$]`)
-	name := reValid.ReplaceAllString(clean, "")
+	name := utils.SanitizeName(clean)
 
 	return name, cType
 }

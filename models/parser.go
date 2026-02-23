@@ -14,10 +14,13 @@ func ParseXML(inputFile string) ([]MxCell, error) {
 		return nil, fmt.Errorf("error reading file (lỗi đọc tệp): %v", err)
 	}
 
+	// MxFile là cấu trúc gốc của tệp XML draw.io, chứa tất cả dữ liệu cần thiết để trích xuất các cell.
 	var mxFile MxFile
 	if err := xml.Unmarshal(byteValue, &mxFile); err != nil {
 		return nil, fmt.Errorf("error parsing XML (lỗi phân tích XML): %v", err)
 	}
 
+	// Trả về danh sách các cell từ tệp XML đã phân tích. 
+	// Xem xml.go để biết cấu trúc của MxFile và cách nó tổ chức dữ liệu.
 	return mxFile.Diagram.MxGraphModel.Root.MxCells, nil
 }

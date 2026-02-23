@@ -7,6 +7,8 @@ import (
 // AnalyzerService orchestrates the analysis process.
 // AnalyzerService điều phối quá trình phân tích.
 type AnalyzerService struct {
+	// classExtractor is a pointer to a ClassExtractor instance used for extracting class information from source code.
+	// classExtractor là một con trỏ đến một instance của ClassExtractor được sử dụng để trích xuất thông tin lớp từ mã nguồn.
 	classExtractor        *ClassExtractor
 	featureExtractor      *FeatureExtractor
 	relationshipExtractor *RelationshipExtractor
@@ -44,4 +46,13 @@ func (as *AnalyzerService) AnalyzeDiagram(cells []models.MxCell) map[string]*mod
 	as.hierarchyResolver.Resolve(classes)
 
 	return classes
+	// kiến trúc:
+	// classes: map[string]*ClassModel
+	// ClassModel:
+	// - Name
+	// - Type (Class, Abstract, Interface, Enum)
+	// - Fields []FieldModel
+	// - Methods []MethodModel
+	// - Extends string (for classes)
+	// - Implements []string (for classes)
 }

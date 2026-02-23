@@ -55,7 +55,7 @@ func IsFuzzyMatch(s, target string) bool {
 	// Just handling common user typos for now
 	// Kiểm tra xem nó có "đủ gần" không
 	// Hiện tại chỉ xử lý các lỗi đánh máy phổ biến của người dùng
-	if (s == "emun" && target == "enum") || (s == "enmu" && target == "enum") {
+	if (s == "emun" || s == "enmu") && target == "enum" {
 		return true
 	}
 	if (s == "interfac" || s == "inteface" || s == "iterface") && target == "interface" {
@@ -74,4 +74,12 @@ func LowercaseFirst(s string) string {
 	r := []rune(s)
 	r[0] = unicode.ToLower(r[0])
 	return string(r)
+}
+
+var reValidIdentifier = regexp.MustCompile(`[^a-zA-Z0-9_$]`)
+
+// SanitizeName removes all characters from a string except letters, numbers, underscores, and dollar signs.
+// SanitizeName loại bỏ tất cả các ký tự khỏi chuỗi ngoại trừ chữ cái, số, dấu gạch dưới và dấu đô la.
+func SanitizeName(name string) string {
+	return reValidIdentifier.ReplaceAllString(name, "")
 }

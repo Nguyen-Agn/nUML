@@ -49,3 +49,18 @@ type MxGeometry struct {
 	Width  string `xml:"width,attr"`
 	Height string `xml:"height,attr"`
 }
+
+
+/* Nesting of structs allows us to easily navigate the XML structure and extract the necessary information for analysis and code generation.
+* Việc lồng các struct cho phép chúng ta dễ dàng điều hướng cấu trúc XML và trích xuất thông tin cần thiết cho việc phân tích và tạo mã.
+* Kiến trúc:
+* MxFile
+*  └── XMLName
+*  └── Diagram
+*       └── MxGraphModel
+*            └── Root
+*                 └── []MxCell
+*  						  └──MxGeometry
+* 
+* Each MxCell can represent a class, attribute, method, or relationship depending on its style and properties
+*/

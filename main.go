@@ -36,14 +36,16 @@ func main() {
 	}
 
 	var inputFile string
+	// lấy args từ 1 -> n
 	args := os.Args[1:]
 
 	for i := 0; i < len(args); i++ {
 		arg := args[i]
-		if arg == "-h" {
+		switch arg {
+		case "-h":
 			printHelp()
 			return
-		} else if arg == "-f" {
+		case "-f":
 			if i+1 < len(args) {
 				targetPackage = args[i+1]
 				i++
@@ -51,13 +53,13 @@ func main() {
 				fmt.Println("Error: -f requires a folder name (Lỗi: -f yêu cầu tên thư mục)")
 				return
 			}
-		} else if arg == "-o" {
+		case "-o":
 			OverwriteMode = true
-		} else if arg == "-v" {
+		case "-v":
 			utils.VerboseMode = true
-		} else if arg == "-l" {
+		case "-l":
 			NoReportMode = true
-		} else {
+		default:
 			inputFile = arg
 		}
 	}
@@ -68,6 +70,7 @@ func main() {
 	}
 
 	utils.LogInfo(fmt.Sprintf("Processing file (Đang xử lý tệp): %s", inputFile))
+	// nhận hoặc tạo thư mục đích nếu -f được cung cấp
 	if targetPackage != "" {
 		utils.LogVerbose(fmt.Sprintf("Target Package/Folder (Gói/Thư mục đích): %s", targetPackage))
 		if _, err := os.Stat(targetPackage); os.IsNotExist(err) {

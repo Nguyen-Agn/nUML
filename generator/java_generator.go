@@ -5,7 +5,6 @@ import (
 	"nUML/models"
 	"nUML/utils"
 	"path/filepath"
-	"regexp"
 	"strings"
 )
 
@@ -62,16 +61,14 @@ func (jg *JavaGenerator) Generate(cls *models.ClassModel) (*GeneratedArtifact, e
 	access := "public"
 	typeStr := "class"
 
-	if cls.Type == models.Interface {
+	switch cls.Type {
+	case models.Interface:
 		typeStr = "interface"
-	}
-	if cls.Type == models.Enum {
+	case models.Enum:
 		typeStr = "enum"
-	}
-	if cls.Type == models.Record {
+	case models.Record:
 		typeStr = "record"
-	}
-	if cls.Type == models.Abstract {
+	case models.Abstract:
 		typeStr = "abstract class"
 	}
 
@@ -118,9 +115,7 @@ func (jg *JavaGenerator) Generate(cls *models.ClassModel) (*GeneratedArtifact, e
 			} else {
 				// Also sanitize constant names
 				// Cũng làm sạch tên hằng số
-				cName := strings.ReplaceAll(field.Name, " ", "")
-				reValid := regexp.MustCompile(`[^a-zA-Z0-9_$]`)
-				cName = reValid.ReplaceAllString(cName, "")
+				cName := utils.SanitizeName(field.Name)
 				constants = append(constants, cName)
 			}
 		}

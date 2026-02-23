@@ -6,8 +6,6 @@ import (
 
 // Global Log variables
 // Các biến Log toàn cục
-// Global Log variables
-// Các biến Log toàn cục
 var VerboseMode bool
 
 // Colors for console output
